@@ -7,3 +7,5 @@
 
 /debian-pkg/Dockerfile
 /debian-pkg/releases/
+
+/devices/

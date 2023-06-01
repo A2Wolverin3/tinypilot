@@ -1,0 +1,73 @@
+version: "3.8"
+
+volumes:
+  tp-config:
+
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      # Tinypilot app is externally exposed on 80
+      - "80:80"
+      # Traefik dashboard is exposed on 8080
+      #- "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    command:
+      - "--log.level=INFO"
+      - "--api.insecure=true"
+      - "--api.dashboard=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.http.address=:80"
+
+  ustreamer:
+    image: pikvm/ustreamer:latest
+    container_name: ustreamer
+    restart: unless-stopped
+    command:
+      - "ustreamer"
+      - "--host=0.0.0.0"
+      - "--format=jpeg"
+      - "--resolution=1920x1080"
+      - "--persistent"
+      - "--slowdown"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ustreamer.rule=PathPrefix(`/stream`)"
+      - "traefik.http.services.ustreamer.loadbalancer.server.port=8080"
+    devices:
+      - /dev/video0:/dev/video0
+
+  tinypilot:
+    image: tinypilot
+    build:
+      context: ../
+      dockerfile: docker/tinypilot.Dockerfile
+      # dockerfile: docker/tinypilot-local.Dockerfile
+    container_name: tinypilot
+    restart: unless-stopped
+    volumes:
+      # Read-only is sufficient for configfs if using '--no-init'
+      - /sys/kernel/config:/sys/kernel/config
+      # - /sys/kernel/config:/sys/kernel/config:ro
+      # Uncomment for debugging with current local device config.
+      # - "../ansible-role/files:/opt/tinypilot/ansible-role/files:ro"
+      # - ".:/opt/tinypilot/docker:ro"
+    device_cgroup_rules:
+      # TODO - Is USB Gadget always 236? => "c 236:* rwm"
+      - "c *:* rwm"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kvm.rule=PathPrefix(`/`)"
+      - "traefik.http.services.kvm.loadbalancer.server.port=8000"
+    environment:
+      - APP_SETTINGS_FILE=/opt/tinypilot/app_settings.cfg
+      - PORT=8000
+      # - DEBUG=1
+    command:
+      - "./docker/docker-wrapper.sh"
+      # Use '--no-init' if the docker host has already managed gadget creation.
+      # - "--no-init"

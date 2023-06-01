@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik-dev
+    restart: "no"
+    # Tinypilot app is exposed on 80
+    # Traefik dashboard is 8080
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./traefik.dev.yml:/traefik.yml:ro"
+
+  ustreamer:
+    image: pikvm/ustreamer:latest
+    container_name: ustreamer-dev
+    restart: "no"
+    command:
+      - "ustreamer"
+      - "--host=0.0.0.0"
+      - "--format=jpeg"
+      - "--resolution=1920x1080"
+      - "--persistent"
+      - "--slowdown"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ustreamer.rule=PathPrefix(`/stream`)"
+      - "traefik.http.services.ustreamer.loadbalancer.server.port=8080"
+    devices:
+      - /dev/video0:/dev/video0
+# There is no tinypilot service. Run that locally with dev-scripts/serve-dev
+# The port the dev server runs on should match the port given in traefik-dev.yml
+# Alternatively, you can use the non-dev compose file and point the tinypilot
+# build info to the tinypilot-local.Dockerfile.

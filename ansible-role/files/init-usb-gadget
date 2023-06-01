@@ -37,7 +37,10 @@ while getopts "h" opt; do
   esac
 done
 
-modprobe libcomposite
+# Don't modprobe if it's not installed. That's probably a
+# container situation where we just need to trust the
+# module is installed.
+type -p libcomposite >/dev/null && modprobe libcomposite
 
 # Adapted from https://github.com/girst/hardpass-sendHID/blob/master/README.md
 
@@ -215,4 +218,4 @@ ln -s "${USB_KEYBOARD_FUNCTIONS_DIR}" "${USB_CONFIG_DIR}/"
 ln -s "${USB_MOUSE_FUNCTIONS_DIR}" "${USB_CONFIG_DIR}/"
 ln -s "${USB_MOUSE_REL_FUNCTIONS_DIR}" "${USB_CONFIG_DIR}/"
 
-usb_gadget_activate "/dev/hidg0" "/dev/hidg1" "/dev/hidg2"
+usb_gadget_activate "$(ls /dev/hidg* 2>/dev/null)"

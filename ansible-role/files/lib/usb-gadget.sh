@@ -34,7 +34,10 @@ readonly USB_ALL_FUNCTIONS_DIR
 
 function usb_gadget_activate {
   ls /sys/class/udc > "${USB_DEVICE_PATH}/UDC"
-  chmod 777 "$@"
+  # shellcheck disable=SC2199 # We want to flatten the array here. Not an error.
+  if [[ -n "$@" ]]; then
+    chmod 777 "$@"
+  fi
 }
 export -f usb_gadget_activate
 

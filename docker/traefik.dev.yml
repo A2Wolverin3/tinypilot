@@ -1,0 +1,33 @@
+## STATIC CONFIGURATION
+log:
+  level: DEBUG
+
+api:
+  insecure: true
+  dashboard: true
+
+entryPoints:
+  http:
+    address: ":80"
+
+providers:
+  docker:
+    watch: true
+    exposedbydefault: false
+  file:
+    filename: "traefik.yml"
+
+## DYNAMIC CONFIGURATION
+http:
+  routers:
+    to-local-tinypilot:
+      rule: "PathPrefix(`/`)"
+      service: to-local-tinypilot
+      entryPoints:
+        - http
+
+  services:
+    to-local-tinypilot:
+      loadBalancer:
+        servers:
+          - url: "http://172.17.0.1:8000"
