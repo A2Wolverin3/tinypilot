@@ -45,8 +45,8 @@ services:
     image: tinypilot
     build:
       context: ../
-      dockerfile: docker/tinypilot.Dockerfile
-      # dockerfile: docker/tinypilot-local.Dockerfile
+      # dockerfile: docker/tinypilot.Dockerfile
+      dockerfile: docker/tinypilot-local.Dockerfile
     container_name: tinypilot
     restart: unless-stopped
     volumes:
