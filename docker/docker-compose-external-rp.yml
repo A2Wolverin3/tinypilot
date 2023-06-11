@@ -35,8 +35,6 @@ services:
     restart: always
     networks:
       - home
-    ports:
-      - 8000:8000
     volumes:
       # Read-only is sufficient for configfs if using '--no-init'
       - /sys/kernel/config:/sys/kernel/config
