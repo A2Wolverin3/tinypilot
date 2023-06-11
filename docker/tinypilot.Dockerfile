@@ -5,7 +5,7 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x |  bash -
 RUN apt-get install -y nodejs shellcheck
 
 WORKDIR /opt
-RUN git clone https://github.com/mtlynch/tinypilot
+RUN git clone https://github.com/A2Wolverin3/tinypilot.git -b flowerbug-settings
 ARG INSTALL_DIR=/opt/tinypilot
 WORKDIR ${INSTALL_DIR}
 
