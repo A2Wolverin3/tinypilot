@@ -1,0 +1,57 @@
+version: "3.8"
+
+networks:
+  home:
+    name: ${_HOME_NET_NAME}
+    external: true
+
+volumes:
+  tp-config:
+
+services:
+  ustreamer:
+    image: pikvm/ustreamer:latest
+    container_name: ustreamer
+    restart: always
+    networks:
+      - home
+    command:
+      - "ustreamer"
+      - "--host=0.0.0.0"
+      - "--format=jpeg"
+      - "--resolution=1920x1080"
+      - "--persistent"
+      - "--slowdown"
+    devices:
+      - /dev/video0:/dev/video0
+
+  tinypilot:
+    image: ${_PROJECT_NAME}
+    container_name: ${_PROJECT_NAME}
+    build:
+      context: ../
+      dockerfile: docker/tinypilot.Dockerfile
+      # dockerfile: docker/tinypilot-local.Dockerfile
+    restart: always
+    networks:
+      - home
+    ports:
+      - 8000:8000
+    volumes:
+      # Read-only is sufficient for configfs if using '--no-init'
+      - /sys/kernel/config:/sys/kernel/config
+      # - /sys/kernel/config:/sys/kernel/config:ro
+      # Uncomment for debugging with current local device config.
+      # - "../ansible-role/files:/opt/tinypilot/ansible-role/files:ro"
+      # - ".:/opt/tinypilot/docker:ro"
+    device_cgroup_rules:
+      # TODO - Is USB Gadget always 236? => "c 236:* rwm"
+      - "c *:* rwm"
+    environment:
+      - APP_SETTINGS_FILE=/opt/tinypilot/app_settings.cfg
+      - PORT=8000
+      # - DEBUG=1
+    command:
+      - "./docker/docker-wrapper.sh"
+      # Use '--no-init' if the docker host has already managed gadget creation.
+      # - "--no-init"
