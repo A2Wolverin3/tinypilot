@@ -12,7 +12,7 @@ services:
   ustreamer:
     image: pikvm/ustreamer:latest
     container_name: ustreamer
-    restart: always
+    restart: unless-stopped
     networks:
       - home
     command:
@@ -32,7 +32,7 @@ services:
       context: ../
       dockerfile: docker/tinypilot.Dockerfile
       # dockerfile: docker/tinypilot-local.Dockerfile
-    restart: always
+    restart: unless-stopped
     networks:
       - home
     volumes:
