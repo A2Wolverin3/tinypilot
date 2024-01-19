@@ -1,7 +1,7 @@
 # See the "Updating Python pip packages" section of CONTRIBUTING.md for
 # instructions about updating this file.
 
-eventlet==0.33.3
+eventlet>=0.34.1
 Flask==2.3.2
 Flask-SocketIO==5.3.4
 Flask-WTF==1.1.1
@@ -12,7 +12,7 @@ bidict==0.22.1
 blinker==1.6.2
 click==8.1.6
 dnspython==2.4.1
-greenlet==2.0.2
+greenlet>=3.0.0
 importlib-metadata==6.8.0
 itsdangerous==2.1.2
 Jinja2==3.1.2

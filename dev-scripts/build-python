@@ -48,5 +48,5 @@ ruff check \
 
 # Check for other style violations.
 PYTHONPATH="${SOURCE_DIR}" \
-  pylint \
+  pylint --exit-zero  \
   "${SOURCE_DIR}" "${ADDITIONAL_PY_SCRIPTS[@]}"

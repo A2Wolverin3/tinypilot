@@ -37,7 +37,10 @@ while getopts "h" opt; do
   esac
 done
 
-modprobe libcomposite
+# Don't modprobe if it's not installed. That's probably a
+# container situation where we just need to trust the
+# module is installed.
+type -p libcomposite >/dev/null && modprobe libcomposite
 
 # Adapted from https://github.com/girst/hardpass-sendHID/blob/master/README.md
 
