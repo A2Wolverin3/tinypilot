@@ -155,6 +155,7 @@ function onKeyDown(evt) {
 }
 
 function sendMouseEvent(
+  isRelative,
   buttons,
   relativeX,
   relativeY,
@@ -169,6 +170,7 @@ function sendMouseEvent(
   socket.emit(
     "mouse-event",
     {
+      isRelative,
       buttons,
       relativeX,
       relativeY,
@@ -301,6 +303,20 @@ menuBar.addEventListener("dedicated-window-requested", () => {
   // effective approach to ensure proper teardown of the main window resources.
   window.location = "/dedicated-window-placeholder";
 });
+menuBar.addEventListener("mouse-mode-toggled", () => {
+  const screen = document.getElementById("remote-screen");
+  screen.isMouseRelative = !screen.isMouseRelative;
+  menuBar.isRelativeMouseEnabled = screen.isMouseRelative;
+});
+document.addEventListener("pointerlockchange", () => {
+  menuBar.isRelativeMouseEnabled = document.pointerLockElement !== null;
+});
+document.addEventListener("pointerlockerror", () => {
+  menuBar.isRelativeMouseEnabled = false;
+  if (document.pointerLockElement !== null) {
+    document.exitPointerLock();
+  }
+});
 menuBar.addEventListener("shutdown-dialog-requested", () => {
   document.getElementById("shutdown-overlay").show();
 });
@@ -369,6 +385,7 @@ document
   .getElementById("remote-screen")
   .addEventListener("mouse-event", (evt) => {
     sendMouseEvent(
+      evt.detail.isRelative,
       evt.detail.buttons,
       evt.detail.relativeX,
       evt.detail.relativeY,
